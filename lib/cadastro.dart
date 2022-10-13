@@ -1,4 +1,7 @@
+import 'package:app_clone_whatsapp/home.dart';
+import 'package:app_clone_whatsapp/model/usuario.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 class Cadastro extends StatefulWidget {
   const Cadastro({super.key});
 
@@ -7,63 +10,93 @@ class Cadastro extends StatefulWidget {
 }
 
 class _CadastroState extends State<Cadastro> {
-
-  TextEditingController controllerNome = TextEditingController();
-  TextEditingController controllerEmail = TextEditingController();
-  TextEditingController controllerSenha = TextEditingController();
   
-  String _messagemErro = "";
+  //Controladores
+  TextEditingController _controllerNome = TextEditingController();
+  TextEditingController _controllerEmail = TextEditingController();
+  TextEditingController _controllerSenha = TextEditingController();
+  
+  String _mensagemErro = "";
 
   _validarCadastro(){
-    if(controllerNome.text.isNotEmpty){
-       if(controllerNome.text.length > 4){
-        if(controllerEmail.text.isNotEmpty){
-          if(controllerEmail.text.contains("@")){
-             if(controllerSenha.text.isNotEmpty){
-                if(controllerSenha.text.length >= 6){
-                  setState(() {
-                      _messagemErro = "Sucesso!";
-                  });
+    if(_controllerNome.text.isNotEmpty){
+       if(_controllerNome.text.length > 4){
+        if(_controllerEmail.text.isNotEmpty){
+          if(_controllerEmail.text.contains("@")){
+             if( _controllerSenha.text.isNotEmpty){
+                if( _controllerSenha.text.length >= 6){
+
+                   Usuario usuario = Usuario();
+                   usuario.setNome  = _controllerNome.text;
+                   usuario.setEmail = _controllerEmail.text;
+                   usuario.setSenha = _controllerSenha.text;
+
+                   _cadastraUsuario(usuario);
+
                 }
                 else{
                      setState(() {
-                       _messagemErro = "A Senha tem que ter mais de 5 digitos";
+                       _mensagemErro = "A Senha tem que ter mais de 5 digitos";
                      });
                }
              } 
              else{
                   setState(() {
-                    _messagemErro = "Preencha a Senha";
+                    _mensagemErro = "Preencha a Senha";
                  });
             }
 
           }
           else{
                setState(() {
-                 _messagemErro = "O E-mail tem que conter @";
+                 _mensagemErro = "O E-mail tem que conter @";
               });
          }
 
         } 
         else{
          setState(() {
-             _messagemErro = "Preencha o E-mail";
+             _mensagemErro = "Preencha o E-mail";
          });
        }
 
        }
        else{
              setState(() {
-               _messagemErro = "O Nome tem que ter mais de 4 digitos";
+               _mensagemErro = "O Nome tem que ter mais de 4 digitos";
              });
     }
 
     }
     else{
          setState(() {
-             _messagemErro = "Preencha o Nome";
+             _mensagemErro = "Preencha o Nome";
          }); 
     }
+  }
+
+
+  _cadastraUsuario(Usuario usuario){
+
+  FirebaseAuth auth = FirebaseAuth.instance;
+  
+  auth.createUserWithEmailAndPassword(
+    email: usuario.getEmail, 
+    password: usuario.getSenha
+    ).then((value) {
+         
+         Navigator.push(context, 
+            MaterialPageRoute(builder: (context) => Home() )
+         );
+
+    }).catchError((erro){
+         
+        setState(() {
+                      _mensagemErro = "Erro ao cadastrar-se verifica o E-mail ou a Senha!";
+                  });
+      
+    });
+
   }
   
   @override
@@ -86,7 +119,7 @@ class _CadastroState extends State<Cadastro> {
                 ),
                 Padding(padding: EdgeInsets.only(bottom: 10),
                 child: TextField(
-                  controller: controllerNome,
+                  controller: _controllerNome,
                   keyboardType: TextInputType.text,
                   autofocus: true,
                   decoration: InputDecoration(
@@ -102,7 +135,7 @@ class _CadastroState extends State<Cadastro> {
                 ),
                 Padding(padding: EdgeInsets.only(bottom: 10),
                 child: TextField(
-                  controller: controllerEmail,
+                  controller: _controllerEmail,
                   keyboardType: TextInputType.emailAddress,
                   autofocus: false,
                   decoration: InputDecoration(
@@ -118,7 +151,7 @@ class _CadastroState extends State<Cadastro> {
                 ),
                 Padding(padding: EdgeInsets.only(bottom: 16),
                 child: TextField(
-                  controller: controllerSenha,
+                  controller:  _controllerSenha,
                   keyboardType: TextInputType.text,
                   obscureText: true,
                   autofocus: false,
@@ -156,7 +189,7 @@ class _CadastroState extends State<Cadastro> {
                   ),
                 ),
                  Center(
-                  child: Text(_messagemErro, 
+                  child: Text(_mensagemErro, 
                   style: TextStyle( 
                     color: Colors.red,
                     fontSize: 12
