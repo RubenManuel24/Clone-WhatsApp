@@ -1,7 +1,10 @@
 import 'package:app_clone_whatsapp/home.dart';
 import 'package:app_clone_whatsapp/model/usuario.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+
 class Cadastro extends StatefulWidget {
   const Cadastro({super.key});
 
@@ -18,7 +21,7 @@ class _CadastroState extends State<Cadastro> {
   
   String _mensagemErro = "";
 
-  _validarCadastro(){
+  _validarCadastro(){ 
     if(_controllerNome.text.isNotEmpty){
        if(_controllerNome.text.length > 4){
         if(_controllerEmail.text.isNotEmpty){
@@ -83,11 +86,22 @@ class _CadastroState extends State<Cadastro> {
   auth.createUserWithEmailAndPassword(
     email: usuario.getEmail, 
     password: usuario.getSenha
-    ).then((value) {
-         
-         Navigator.push(context, 
-            MaterialPageRoute(builder: (context) => Home() )
-         );
+    ).then((firebaseUser) {
+     
+    FirebaseFirestore db = FirebaseFirestore.instance;
+    db.collection("Usuario")
+      .doc(firebaseUser.user?.uid)
+      .set(usuario.toMap());
+
+
+    Navigator.pushReplacement(context, 
+     MaterialPageRoute(builder: 
+       (context) {
+          return Home();
+       } 
+     )
+    
+    );
 
     }).catchError((erro){
          
