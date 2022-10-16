@@ -49,7 +49,7 @@ class _LoginState extends State<Login> {
    _loginUsuario(Usuario usuario){
 
         FirebaseAuth auth = FirebaseAuth.instance;
-        //auth.signOut();
+        auth.signOut();
         auth.signInWithEmailAndPassword(
           email: usuario.getEmail, 
           password: usuario.getSenha)

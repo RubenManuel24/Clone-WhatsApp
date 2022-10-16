@@ -1,7 +1,7 @@
 
 
-import 'package:app_clone_whatsapp/model/telas/contatos.dart';
-import 'package:app_clone_whatsapp/model/telas/conversas.dart';
+import 'package:app_clone_whatsapp/telas/contatos.dart';
+import 'package:app_clone_whatsapp/telas/conversas.dart';
 import 'package:flutter/material.dart';
 
 class Home extends StatefulWidget {
