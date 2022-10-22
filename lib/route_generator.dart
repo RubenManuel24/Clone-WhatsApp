@@ -1,4 +1,5 @@
 import 'package:app_clone_whatsapp/cadastro.dart';
+import 'package:app_clone_whatsapp/configuracoes.dart';
 import 'package:app_clone_whatsapp/home.dart';
 import 'package:app_clone_whatsapp/login.dart';
 import 'package:flutter/cupertino.dart';
@@ -9,7 +10,7 @@ class RouteGenerator {
   static const ROUTE_LOGIN = "/login";
   static const ROUTE_CADASTRO = "/cadastro";
   static const ROUTE_HOME = "/home";
-
+  static const ROUTE_CONFIGURACOES = "/configuracoes";
 
   static Route<dynamic>? generatorRoute(RouteSettings settings){
     switch(settings.name){
@@ -29,6 +30,10 @@ class RouteGenerator {
       return MaterialPageRoute(builder: 
         (context) => Home()
       );
+      case ROUTE_CONFIGURACOES:
+       return MaterialPageRoute(
+        builder: (context) => Configuracoes()
+        );
       default: 
         _erroRoute();
     }
