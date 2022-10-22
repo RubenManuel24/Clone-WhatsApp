@@ -22,7 +22,7 @@ class _ConversasState extends State<Conversas> {
             "https://firebasestorage.googleapis.com/v0/b/whatsapp-73d7d.appspot.com/o/ImagemPefil%2FOIP.jpg?alt=media&token=a25040db-90fd-483f-a282-ffecdd970232"),
           Conversa(
             "Mbappé", 
-            "Foi despedir o presidente do PSG o que achas?", 
+            "Vou despedir o presidente do PSG o que achas?", 
             "https://firebasestorage.googleapis.com/v0/b/whatsapp-73d7d.appspot.com/o/ImagemPefil%2Fdescarregar.jpg?alt=media&token=4fdd6583-95f6-4221-9874-906840bc5ed5"),
         Conversa(
             "JLO", 

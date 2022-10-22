@@ -70,8 +70,6 @@ class _ContatosState extends State<Contatos> {
             "https://firebasestorage.googleapis.com/v0/b/whatsapp-73d7d.appspot.com/o/ImagemPefil%2Fth.jpg?alt=media&token=a7e11ed9-e182-4bc4-9667-08b932947dc0")
 
   ];
-        
-
 
   @override
   Widget build(BuildContext context) {
@@ -97,8 +95,6 @@ class _ContatosState extends State<Contatos> {
          ),
 
        );
-
-
       });
   }
 }

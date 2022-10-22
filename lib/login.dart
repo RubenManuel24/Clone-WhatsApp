@@ -2,7 +2,7 @@
 import 'package:app_clone_whatsapp/cadastro.dart';
 import 'package:app_clone_whatsapp/home.dart';
 import 'package:app_clone_whatsapp/model/usuario.dart';
-
+import 'package:app_clone_whatsapp/route_generator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -49,15 +49,12 @@ class _LoginState extends State<Login> {
    _loginUsuario(Usuario usuario){
 
         FirebaseAuth auth = FirebaseAuth.instance;
-        auth.signOut();
         auth.signInWithEmailAndPassword(
           email: usuario.getEmail, 
           password: usuario.getSenha)
           .then((firebaseUser){
               
-              Navigator.pushReplacement(context, 
-                 MaterialPageRoute(builder: (context) => Home())
-              );
+          return Navigator.pushReplacementNamed(context, RouteGenerator.ROUTE_HOME);
 
           })
           .catchError((erro){
@@ -73,15 +70,13 @@ class _LoginState extends State<Login> {
   Future _verificarUser() async {
   
   FirebaseAuth auth = FirebaseAuth.instance;
-  //auth.signOut();
+  // auth.signOut();
   var usuarioAtual = await auth.currentUser;
   
   if(usuarioAtual != null){
-     Navigator.pushReplacement(context, 
-        MaterialPageRoute(builder: 
-          (context) => Home()
-        )
-     );
+     
+     Navigator.pushReplacementNamed(context, RouteGenerator.ROUTE_HOME);
+ 
   }
 
   }
@@ -164,12 +159,9 @@ class _LoginState extends State<Login> {
                    Center(
                     child: GestureDetector(
                       onTap: (){
-                       Navigator.push(
-                        context,
-                         MaterialPageRoute(
-                          builder: (context) => Cadastro()
-                          )
-                         );
+                       
+                       Navigator.pushNamed(context, RouteGenerator.ROUTE_CADASTRO);
+                       
                       },
                       child: Text("Não tem conta? cadaste-se!", style: TextStyle( color: Colors.white),),
                     ),
