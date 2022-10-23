@@ -1,5 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'dart:io';
+
 class Configuracoes extends StatefulWidget {
   const Configuracoes({super.key});
 
@@ -9,23 +13,81 @@ class Configuracoes extends StatefulWidget {
 
 class _ConfiguracoesState extends State<Configuracoes> {
 
-  TextEditingController  _controllerNome = TextEditingController();
+  TextEditingController _controllerNome = TextEditingController();
   var _imagem;
-
+  var _controlProgres = false;
+  var _urlImagemRecuperada;
+  var _urlUserLogado;
+  
  Future _atualizarImagem(String escolhaOpcao) async {
     var _imagemSelecionada;
     switch(escolhaOpcao){
       case "Câmera":
-        _imagemSelecionada = ImagePicker.platform.pickImage(source: ImageSource.camera);
+        _imagemSelecionada = await ImagePicker.platform.getImage(source: ImageSource.camera);
+        
       break;
       case "Galeria":
-        _imagemSelecionada = ImagePicker.platform.pickImage(source: ImageSource.gallery);
+        _imagemSelecionada = await ImagePicker.platform.getImage(source: ImageSource.gallery);
+       
       break;
     }
 
     setState((){
       _imagem = _imagemSelecionada;
+      if(_imagem != null){
+        _controlProgres = true;
+        _uploadImagem();
+      }
     });
+  }
+
+//metodo para fazer upload da imagem para FireBase
+  Future _uploadImagem() async {
+    FirebaseStorage storage = FirebaseStorage.instance;
+    var pastaRaiz = storage.ref();
+    var arquivo = await pastaRaiz
+    .child("ImagemPefil")
+    .child("$_urlUserLogado.jpg");
+
+//Upload da Imagem
+    var task = arquivo.putFile(File(_imagem.path));
+
+//Controlando o progresso da imagem
+    task.snapshotEvents.listen((TaskSnapshot taskSnapshot) { 
+        if(taskSnapshot.state == TaskState.running){
+          setState((){
+            _controlProgres = true;
+          });
+        }
+        else if(taskSnapshot.state == TaskState.success){
+             setState((){
+            _controlProgres = false;
+          });
+        }
+
+    });
+
+  //Pegado a url da imagem
+  var url = await (await task.snapshot).ref.getDownloadURL();
+
+   setState(() {
+     _urlImagemRecuperada = url;
+   });
+
+  }
+
+//Metodo para recuperar a url do Usuario corrente
+
+Future _recuperaUrlUser() async {
+  FirebaseAuth auth = FirebaseAuth.instance;
+  var userLogado = await auth.currentUser;
+  _urlUserLogado = userLogado?.uid;
+}
+
+  @override
+  void initState() {
+    super.initState();
+    _recuperaUrlUser();
   }
 
   @override
@@ -41,10 +103,16 @@ class _ConfiguracoesState extends State<Configuracoes> {
           child: SingleChildScrollView(
             child: Column(
               children: [
+                _controlProgres 
+                  ? CircularProgressIndicator(color: Colors.green,)
+                  :Container(),
                 CircleAvatar(
                   radius: 100,
                   backgroundColor: Colors.grey,
-                  backgroundImage: NetworkImage("https://firebasestorage.googleapis.com/v0/b/whatsapp-73d7d.appspot.com/o/ImagemPefil%2F1665922194090%5B1%5D.jpg?alt=media&token=a2bbdbeb-259c-42d1-88c2-802256c5afa6"),
+                  backgroundImage: 
+                  _urlImagemRecuperada != null 
+                    ?  NetworkImage(_urlImagemRecuperada)
+                    :null
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
