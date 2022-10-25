@@ -1,5 +1,6 @@
 import 'package:app_clone_whatsapp/model/conversa.dart';
 import 'package:app_clone_whatsapp/model/usuario.dart';
+import 'package:app_clone_whatsapp/route_generator.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -27,7 +28,7 @@ Future<List<Usuario>> _recuperarContatos() async {
           var dados = item;
 
         if(dados["email"] == _emailUserLogado)  continue;
-        
+
           Usuario usuario = Usuario();
           usuario.setEmail = dados["email"];
           usuario.setNome = dados["nome"];
@@ -84,6 +85,9 @@ void initState() {
                  Usuario usuario = listaItens[index];
             
               return ListTile(
+                onTap: (){
+                  Navigator.pushNamed(context, RouteGenerator.ROUTE_MENSAGEM, arguments: usuario.getNome);
+                },
                 contentPadding: EdgeInsets.fromLTRB(16, 8, 16, 8),
                 leading: CircleAvatar(
                   maxRadius: 30,
