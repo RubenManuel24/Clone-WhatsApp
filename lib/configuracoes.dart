@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:io';
 
 class Configuracoes extends StatefulWidget {
@@ -53,7 +54,7 @@ class _ConfiguracoesState extends State<Configuracoes> {
     var task = arquivo.putFile(File(_imagem.path));
 
 //Controlando o progresso da imagem
-    task.snapshotEvents.listen((TaskSnapshot taskSnapshot) { 
+    task.snapshotEvents.listen((TaskSnapshot taskSnapshot)  { 
         if(taskSnapshot.state == TaskState.running){
           setState((){
             _controlProgres = true;
@@ -68,20 +69,64 @@ class _ConfiguracoesState extends State<Configuracoes> {
     });
 
   //Pegado a url da imagem
-  var url = await (await task.snapshot).ref.getDownloadURL();
-
+  String url = await (await task).ref.getDownloadURL();
+   _atualizarImagemFirestore(url);
    setState(() {
      _urlImagemRecuperada = url;
    });
 
   }
 
-//Metodo para recuperar a url do Usuario corrente
+//Metodo atualizar imagem no Firestore
+_atualizarImagemFirestore(String url){
 
+  Map<String, dynamic> dadoAtualizar = {
+    "urlImagem" : url
+  };
+
+ FirebaseFirestore db = FirebaseFirestore.instance;
+  db.collection("Usuario")
+  .doc(_urlUserLogado)
+  .update(dadoAtualizar);
+}
+
+//Metodo atualizar o nome no Firestore
+_atualizarNomeFirestore(){
+
+var nome = _controllerNome.text;
+FirebaseFirestore db = FirebaseFirestore.instance;
+
+  Map<String, dynamic>  dadoAtualizar = {
+    "nome" : nome
+  };
+
+  db.collection("Usuario")
+  .doc(_urlUserLogado)
+  .update(dadoAtualizar);
+}
+
+
+//Metodo para recuperar a url do Usuario corrente
 Future _recuperaUrlUser() async {
   FirebaseAuth auth = FirebaseAuth.instance;
   var userLogado = await auth.currentUser;
   _urlUserLogado = userLogado?.uid;
+
+FirebaseFirestore db = FirebaseFirestore.instance;
+var snapshot = await db.collection("Usuario")
+.doc(_urlUserLogado) 
+.get();
+
+Map<String, dynamic>? dados = snapshot.data();
+ _controllerNome.text = dados!["nome"];
+
+if(dados["urlImagem"] != null){
+  setState(() {
+     _urlImagemRecuperada = dados["urlImagem"];
+  });
+ 
+}
+
 }
 
   @override
@@ -103,9 +148,12 @@ Future _recuperaUrlUser() async {
           child: SingleChildScrollView(
             child: Column(
               children: [
-                _controlProgres 
+               Container(
+                padding: EdgeInsets.all(15),
+                child: _controlProgres 
                   ? CircularProgressIndicator(color: Colors.green,)
                   :Container(),
+               ),
                 CircleAvatar(
                   radius: 100,
                   backgroundColor: Colors.grey,
@@ -145,7 +193,9 @@ Future _recuperaUrlUser() async {
                 ),
                 Padding(padding: EdgeInsets.only(top: 10),
                 child: TextButton(
-                  onPressed: (){}, 
+                  onPressed: (){
+                    _atualizarNomeFirestore();
+                  }, 
                   child: Text("Salvar",
                   style: TextStyle(color: Colors.white, fontSize: 20),),
                   style: ButtonStyle(

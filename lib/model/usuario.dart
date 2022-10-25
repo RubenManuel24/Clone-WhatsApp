@@ -3,6 +3,7 @@ class Usuario {
   var _nome;
   var _email;
   var _senha; 
+  var _urlImagem; 
 
   Usuario();
 
@@ -35,5 +36,10 @@ class Usuario {
    this._senha = senha;
  }
 
+ String get getUrlImagem=> this._urlImagem;
+
+ set setUrlImagem(String urlImagem){
+   this._urlImagem = urlImagem;
+ }
 
 }
