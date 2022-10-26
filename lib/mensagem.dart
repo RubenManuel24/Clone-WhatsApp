@@ -15,6 +15,22 @@ var argumentoCapturado;
 
 class _MensagemState extends State<Mensagem> {
 
+   List<String> listaMensagem = [
+     "Olá meu amigo, tudo bem?",
+     "Tudo ótimo!!! e contigo?",
+     "Estou muito bem!! queria ver uma coisa contigo, você vai na corrida de moto?",
+     "Não sei ainda :(",
+     "porque se você fosse, queria ver se posso ir com você...",
+     "Posso te confirma no sábado? vou ver isso",
+     "Opa! tranquilo",
+     "Excelente!!",
+     "Estou animado para essa corrida, não vejo a hora de chegar!",
+     "Vai estar bem legal!! terá muita gente",
+     "vai sim!",
+     "Lembra do carro que tinha te falado",
+     "Que legal!!"
+  ]; 
+
   TextEditingController _controllerMensagem = TextEditingController();
 
   _enviarMensagem(){
@@ -67,7 +83,49 @@ class _MensagemState extends State<Mensagem> {
       ],
     )
   );
+    
+    var listView = Expanded(
+      child: ListView.builder(
+      itemCount: listaMensagem.length,
+       itemBuilder: (context, indice){
 
+         double larguraContainer = MediaQuery.of(context).size.width * 0.8;
+         //larguraContainer -> 100
+         //x                -> 80
+
+
+
+        //Definir a color e aliamento das mensagem
+         var colorMensagem = Color(0xffd2ffa5);
+         var aliamentoMensagem = Alignment.centerRight;
+
+         if(indice % 2 == 0){
+           colorMensagem = Colors.white;
+           aliamentoMensagem = Alignment.centerLeft;
+         }
+
+          return Align(
+            alignment: aliamentoMensagem,
+            child: Padding(
+              padding: EdgeInsets.all(6),
+              child: Container(
+                width: larguraContainer,
+                padding: EdgeInsets.all(9),
+                decoration: BoxDecoration(
+                  color: colorMensagem,
+                  borderRadius: BorderRadius.circular(8)
+                ),
+                child: Text(listaMensagem[indice],
+                  style: TextStyle(fontSize: 18),
+                ),
+              ),
+              ),
+          );
+
+       },
+       
+        )
+      );
 
     return Scaffold(
       appBar: AppBar(
@@ -88,7 +146,7 @@ class _MensagemState extends State<Mensagem> {
           child: Container(
             child: Column(
               children: [
-                Text("ListViews"),
+                listView,
                 caixaMensagem
               ],
             ),
