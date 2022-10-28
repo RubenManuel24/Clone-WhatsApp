@@ -16,7 +16,7 @@ class RouteGenerator {
 
   static Route<dynamic>? generatorRoute(RouteSettings settings){
     
-    var argumento = settings.arguments;
+    dynamic args = settings.arguments;
 
     switch(settings.name){
       case "/": 
@@ -41,7 +41,7 @@ class RouteGenerator {
         );
       case  ROUTE_MENSAGEM:
        return MaterialPageRoute(
-        builder: (context) => Mensagem(argumento)
+        builder: (context) => Mensagem(args)
         );
       default: 
         _erroRoute();

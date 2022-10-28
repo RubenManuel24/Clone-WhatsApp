@@ -30,6 +30,7 @@ Future<List<Usuario>> _recuperarContatos() async {
         if(dados["email"] == _emailUserLogado)  continue;
 
           Usuario usuario = Usuario();
+          usuario.setIdUsuario = item.id;
           usuario.setEmail = dados["email"];
           usuario.setNome = dados["nome"];
           usuario.setUrlImagem = dados["urlImagem"];
@@ -43,7 +44,6 @@ Future _recuperUserLogado() async {
 
     FirebaseAuth auth = FirebaseAuth.instance;
     var userLogado = auth.currentUser;
-
     _emailUserLogado = userLogado?.email;
 
 }
@@ -86,7 +86,8 @@ void initState() {
             
               return ListTile(
                 onTap: (){
-                  Navigator.pushNamed(context, RouteGenerator.ROUTE_MENSAGEM, arguments: usuario.getNome);
+
+                  Navigator.pushNamed(context, RouteGenerator.ROUTE_MENSAGEM, arguments: usuario);
                 },
                 contentPadding: EdgeInsets.fromLTRB(16, 8, 16, 8),
                 leading: CircleAvatar(

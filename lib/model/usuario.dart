@@ -1,5 +1,6 @@
 class Usuario {
-
+  
+  var _idUsuario;
   var _nome;
   var _email;
   var _senha; 
@@ -16,6 +17,12 @@ class Usuario {
     return map;
 
   }
+
+ String get getIdUsuario => this._idUsuario;
+
+ set setIdUsuario(String idUsuario){
+  this._idUsuario = idUsuario;
+ }
 
  String get getNome => this._nome;
 

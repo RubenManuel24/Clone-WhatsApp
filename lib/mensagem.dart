@@ -1,12 +1,15 @@
-import 'dart:ui';
+import 'package:app_clone_whatsapp/model/mensagem_model.dart';
+import 'package:app_clone_whatsapp/model/usuario.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:flutter/material.dart';
 
 class Mensagem extends StatefulWidget {
 
-var argumentoCapturado;
+Usuario contato;
 
-  Mensagem(this.argumentoCapturado);
+  Mensagem(this.contato);
 
   
   @override
@@ -30,17 +33,69 @@ class _MensagemState extends State<Mensagem> {
      "Lembra do carro que tinha te falado",
      "Que legal!!"
   ]; 
-
+ 
   TextEditingController _controllerMensagem = TextEditingController();
+   var _idUserRemetente;
+   var _idUserDestinatario;
 
   _enviarMensagem(){
-    print("Enviar mensagem...");
+    
+    String textoMensagem = _controllerMensagem.text;
+    if(textoMensagem.isNotEmpty){
+       MensagemModel mensagemModel = MensagemModel();
+    mensagemModel.setIdUsuarioAtual = _idUserRemetente;
+    mensagemModel.setIdUsuarioDestinario = _idUserDestinatario;
+    mensagemModel.setMensagemModel = textoMensagem;
+    mensagemModel.setUrlImagem = "";
+    mensagemModel.setTipo = "texto";
+     
+     _salvarMensagens(_idUserRemetente, _idUserDestinatario, mensagemModel);
+
+    }
     
   }
 
+//Metodo para salvar mensagem no FirebaseFirestore (BD)
+ Future _salvarMensagens(String idUserRemetente, String idUserDestinatario, MensagemModel smg ) async {
+
+   FirebaseFirestore db =  FirebaseFirestore.instance;
+
+   await db.collection("mensagem")
+  .doc(_idUserRemetente)
+  .collection(_idUserDestinatario)
+  .add(smg.toMap());
+
+  _controllerMensagem.clear();
+   /*
+        + mensagemModel
+          + Ruben Manuel
+            + Neymar Jr
+              + identificadorFirebase
+                <Mensagem>
+    */
+
+  }
+    
+ 
   _enviarImagem(){
    print("Enviar Imagem...");
   }
+
+      //Metodo para recuperar a url do Usuario corrente
+      Future _recuperaUrlUser() async {
+        FirebaseAuth auth = FirebaseAuth.instance;
+        var userLogado = await auth.currentUser;
+        _idUserRemetente = userLogado?.uid;
+        _idUserDestinatario = widget.contato.getIdUsuario;
+
+      }
+
+       
+       @override
+       void initState() {
+         super.initState();
+         _recuperaUrlUser();
+       }
 
   @override
   Widget build(BuildContext context) {
@@ -94,7 +149,6 @@ class _MensagemState extends State<Mensagem> {
          //x                -> 80
 
 
-
         //Definir a color e aliamento das mensagem
          var colorMensagem = Color(0xffd2ffa5);
          var aliamentoMensagem = Alignment.centerRight;
@@ -104,7 +158,7 @@ class _MensagemState extends State<Mensagem> {
            aliamentoMensagem = Alignment.centerLeft;
          }
 
-          return Align(
+       return Align(
             alignment: aliamentoMensagem,
             child: Padding(
               padding: EdgeInsets.all(6),
@@ -130,7 +184,20 @@ class _MensagemState extends State<Mensagem> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Color(0xff075E54),
-        title: Text(widget.argumentoCapturado),
+        title: Row(
+          children: [
+            CircleAvatar(
+              maxRadius: 20,
+              backgroundColor: Colors.grey,
+              backgroundImage: widget.contato.getUrlImagem != null
+                ? NetworkImage(widget.contato.getUrlImagem)
+                :null
+            ),
+            Padding(padding: EdgeInsets.only(left:8),
+            child: Text(widget.contato.getNome),
+            )
+          ],
+          )
       ),
       body: Container(
         width: MediaQuery.of(context).size.width,
