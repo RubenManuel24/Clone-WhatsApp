@@ -30,6 +30,8 @@ Future<List<Usuario>> _recuperarContatos() async {
         if(dados["email"] == _emailUserLogado)  continue;
 
           Usuario usuario = Usuario();
+          
+         
           usuario.setIdUsuario = item.id;
           usuario.setEmail = dados["email"];
           usuario.setNome = dados["nome"];

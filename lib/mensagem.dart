@@ -18,24 +18,9 @@ Usuario contato;
 
 class _MensagemState extends State<Mensagem> {
 
-   List<String> listaMensagem = [
-     "Olá meu amigo, tudo bem?",
-     "Tudo ótimo!!! e contigo?",
-     "Estou muito bem!! queria ver uma coisa contigo, você vai na corrida de moto?",
-     "Não sei ainda :(",
-     "porque se você fosse, queria ver se posso ir com você...",
-     "Posso te confirma no sábado? vou ver isso",
-     "Opa! tranquilo",
-     "Excelente!!",
-     "Estou animado para essa corrida, não vejo a hora de chegar!",
-     "Vai estar bem legal!! terá muita gente",
-     "vai sim!",
-     "Lembra do carro que tinha te falado",
-     "Que legal!!"
-  ]; 
- 
   TextEditingController _controllerMensagem = TextEditingController();
-   var _idUserRemetente;
+   FirebaseFirestore db =  FirebaseFirestore.instance;
+   var _idUserLogado;
    var _idUserDestinatario;
 
   _enviarMensagem(){
@@ -43,26 +28,28 @@ class _MensagemState extends State<Mensagem> {
     String textoMensagem = _controllerMensagem.text;
     if(textoMensagem.isNotEmpty){
        MensagemModel mensagemModel = MensagemModel();
-    mensagemModel.setIdUsuarioAtual = _idUserRemetente;
+    mensagemModel.setIdUsuarioAtual = _idUserLogado;
     mensagemModel.setIdUsuarioDestinario = _idUserDestinatario;
     mensagemModel.setMensagemModel = textoMensagem;
     mensagemModel.setUrlImagem = "";
     mensagemModel.setTipo = "texto";
      
-     _salvarMensagens(_idUserRemetente, _idUserDestinatario, mensagemModel);
+     //Salvar mensagem para remetente
+     _salvarMensagens(_idUserLogado, _idUserDestinatario, mensagemModel);
+
+     //Salvar mensagem para destinatario
+     _salvarMensagens(_idUserDestinatario, _idUserLogado, mensagemModel);
 
     }
     
   }
 
 //Metodo para salvar mensagem no FirebaseFirestore (BD)
- Future _salvarMensagens(String idUserRemetente, String idUserDestinatario, MensagemModel smg ) async {
-
-   FirebaseFirestore db =  FirebaseFirestore.instance;
+ Future _salvarMensagens(String idLogado, String idDestinatario, MensagemModel smg ) async {
 
    await db.collection("mensagem")
-  .doc(_idUserRemetente)
-  .collection(_idUserDestinatario)
+  .doc(idLogado)
+  .collection(idDestinatario)
   .add(smg.toMap());
 
   _controllerMensagem.clear();
@@ -76,7 +63,6 @@ class _MensagemState extends State<Mensagem> {
 
   }
     
- 
   _enviarImagem(){
    print("Enviar Imagem...");
   }
@@ -84,8 +70,8 @@ class _MensagemState extends State<Mensagem> {
       //Metodo para recuperar a url do Usuario corrente
       Future _recuperaUrlUser() async {
         FirebaseAuth auth = FirebaseAuth.instance;
-        var userLogado = await auth.currentUser;
-        _idUserRemetente = userLogado?.uid;
+        var userLogado = auth.currentUser;
+        _idUserLogado = userLogado?.uid;
         _idUserDestinatario = widget.contato.getIdUsuario;
 
       }
@@ -137,12 +123,49 @@ class _MensagemState extends State<Mensagem> {
         )
       ],
     )
-  );
-    
-    var listView = Expanded(
-      child: ListView.builder(
-      itemCount: listaMensagem.length,
+  ); 
+
+   var stream = StreamBuilder<QuerySnapshot>(
+    stream: db.collection("mensagem")
+          .doc(_idUserLogado)
+          .collection(_idUserDestinatario)
+          .snapshots(),
+    builder: (context, snapshot){
+      switch(snapshot.connectionState){
+        case ConnectionState.none:
+        case ConnectionState.waiting:
+          return Expanded(
+            child: Center(
+              child: Column(
+                children: [
+                  Padding(
+                    padding: EdgeInsets.only(top: 8, bottom: 8),
+                     child: CircularProgressIndicator(color: Colors.green ), 
+                    ),
+                    Text("Carregando mensagens...")
+                ]
+                ),
+            ) );
+        case ConnectionState.active:
+        case ConnectionState.done:
+
+        QuerySnapshot querySnapshot = snapshot.requireData;
+
+        if(snapshot.hasError){
+          return Expanded(
+            child: Text("Erro ao carregar mensagens!")
+          );
+        }
+        else{
+          return Expanded(child:
+            ListView.builder(
+      itemCount: querySnapshot.docs.length,
        itemBuilder: (context, indice){
+           
+        //Corrento dos na lista
+        List<QueryDocumentSnapshot> mensagem = querySnapshot.docs;
+
+        DocumentSnapshot item = mensagem[indice];
 
          double larguraContainer = MediaQuery.of(context).size.width * 0.8;
          //larguraContainer -> 100
@@ -153,7 +176,7 @@ class _MensagemState extends State<Mensagem> {
          var colorMensagem = Color(0xffd2ffa5);
          var aliamentoMensagem = Alignment.centerRight;
 
-         if(indice % 2 == 0){
+         if(_idUserLogado != item["idUsuario"]){
            colorMensagem = Colors.white;
            aliamentoMensagem = Alignment.centerLeft;
          }
@@ -169,7 +192,7 @@ class _MensagemState extends State<Mensagem> {
                   color: colorMensagem,
                   borderRadius: BorderRadius.circular(8)
                 ),
-                child: Text(listaMensagem[indice],
+                child: Text(item["mensagem"],
                   style: TextStyle(fontSize: 18),
                 ),
               ),
@@ -179,7 +202,13 @@ class _MensagemState extends State<Mensagem> {
        },
        
         )
-      );
+          );
+        }
+
+      }
+
+    });
+  
 
     return Scaffold(
       appBar: AppBar(
@@ -213,7 +242,7 @@ class _MensagemState extends State<Mensagem> {
           child: Container(
             child: Column(
               children: [
-                listView,
+                stream,
                 caixaMensagem
               ],
             ),

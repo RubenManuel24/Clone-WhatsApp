@@ -14,7 +14,7 @@ Map<String, dynamic> toMap() {
 
   Map<String, dynamic> map = {
     
-    "nome" : this._idUsuarioAtual,
+    "idUsuario" : this._idUsuarioAtual,
     "mensagem" : this._mensagem,
     "urlImagem" : this._urlImagem,
     "tipo" : this._tipo
