@@ -1,9 +1,13 @@
+import 'package:app_clone_whatsapp/model/conversa.dart';
 import 'package:app_clone_whatsapp/model/mensagem_model.dart';
 import 'package:app_clone_whatsapp/model/usuario.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 import 'package:flutter/material.dart';
+
 
 class Mensagem extends StatefulWidget {
 
@@ -22,6 +26,7 @@ class _MensagemState extends State<Mensagem> {
    FirebaseFirestore db =  FirebaseFirestore.instance;
    var _idUserLogado;
    var _idUserDestinatario;
+   var _controlProgresImagem = false;
 
   _enviarMensagem(){
     
@@ -40,8 +45,34 @@ class _MensagemState extends State<Mensagem> {
      //Salvar mensagem para destinatario
      _salvarMensagens(_idUserDestinatario, _idUserLogado, mensagemModel);
 
+     _salvarConversa(mensagemModel);
+
     }
     
+  }
+
+  _salvarConversa(MensagemModel msg){
+
+     //Conversa que irá para Remetente
+     Conversa cRemetente = Conversa();
+     cRemetente.setIdRemetente = _idUserLogado;
+     cRemetente.setIdestinario = _idUserDestinatario;
+     cRemetente.setMensagem = msg.getMensagemModel;
+     cRemetente.setNome = widget.contato.getNome;
+     cRemetente.setCaminhoFoto = widget.contato.getUrlImagem;
+     cRemetente.setTipoMensagem = "texto";
+     cRemetente.salvarDadosFirebaseFirestore();
+
+     //Conversa que irá para Destinatario
+     Conversa cDestinatario = Conversa();
+     cDestinatario.setIdRemetente = _idUserDestinatario;
+     cDestinatario.setIdestinario = _idUserLogado;
+     cDestinatario.setMensagem = msg.getMensagemModel;
+     cDestinatario.setNome = widget.contato.getNome;
+     cDestinatario.setCaminhoFoto = widget.contato.getUrlImagem;
+     cDestinatario.setTipoMensagem = "texto";
+     cDestinatario.salvarDadosFirebaseFirestore();
+
   }
 
 //Metodo para salvar mensagem no FirebaseFirestore (BD)
@@ -62,9 +93,60 @@ class _MensagemState extends State<Mensagem> {
     */
 
   }
+
+
+  
     
-  _enviarImagem(){
-   print("Enviar Imagem...");
+  _enviarImagem() async {
+    var _imagemSelecionada;
+    _imagemSelecionada = await ImagePicker.platform.getImage(source: ImageSource.gallery);
+  
+
+  //código para obter códigos que serão id das iamgem
+  var idImagemCodigo = DateTime.now().millisecondsSinceEpoch.toString();
+
+  //código para guardar as nebsagens no Firebae_storage
+     FirebaseStorage storage = FirebaseStorage.instance;
+    var pastaRaiz = storage.ref();
+    var arquivo = await pastaRaiz
+    .child("mensageImagem")
+    .child(_idUserLogado)
+    .child( idImagemCodigo +".jpg");
+
+//Upload da Imagem
+    var task = arquivo.putFile(File(_imagemSelecionada.path));
+
+//Controlando o progresso da imagem
+    task.snapshotEvents.listen((TaskSnapshot taskSnapshot)  { 
+        if(taskSnapshot.state == TaskState.running){
+          setState((){
+            _controlProgresImagem = true;
+          });
+        }
+        else if(taskSnapshot.state == TaskState.success){
+             setState((){
+            _controlProgresImagem = false;
+          });
+        }
+
+    });
+
+  //Pegado a url da imagem
+  String url = await (await task).ref.getDownloadURL();
+
+   MensagemModel mensagemModel = MensagemModel();
+    mensagemModel.setIdUsuarioAtual = _idUserLogado;
+    mensagemModel.setIdUsuarioDestinario = _idUserDestinatario;
+    mensagemModel.setMensagemModel = "";
+    mensagemModel.setUrlImagem = url;
+    mensagemModel.setTipo = "imagem";
+
+    //Salvar mensagem para remetente
+     _salvarMensagens(_idUserLogado, _idUserDestinatario, mensagemModel);
+
+     //Salvar mensagem para destinatario
+     _salvarMensagens(_idUserDestinatario, _idUserLogado, mensagemModel);
+
   }
 
       //Metodo para recuperar a url do Usuario corrente
@@ -106,9 +188,10 @@ class _MensagemState extends State<Mensagem> {
                 borderRadius: BorderRadius.circular(32)
               ),
               contentPadding: EdgeInsets.fromLTRB(32, 8, 32, 8),
-              prefixIcon: IconButton(
+              prefixIcon: _controlProgresImagem == true 
+                     ? CircularProgressIndicator(color: Colors.green,)
+                     :IconButton( icon: Icon(Icons.camera_alt, color:Color(0xff075E54)),
                 onPressed: _enviarImagem, 
-                icon: Icon(Icons.camera_alt, color:Color(0xff075E54))
             ),
 
           ),
@@ -192,10 +275,10 @@ class _MensagemState extends State<Mensagem> {
                   color: colorMensagem,
                   borderRadius: BorderRadius.circular(8)
                 ),
-                child: Text(item["mensagem"],
-                  style: TextStyle(fontSize: 18),
+                child: item["tipo"]  == "texto" 
+                  ?Text(item["mensagem"], style: TextStyle(fontSize: 18))
+                  : Image.network(item["urlImagem"] )
                 ),
-              ),
               ),
           );
 

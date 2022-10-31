@@ -20,6 +20,7 @@ class _ConfiguracoesState extends State<Configuracoes> {
   var _urlImagemRecuperada;
   var _urlUserLogado;
   
+//Metodo para recuperar imagem
  Future _atualizarImagem(String escolhaOpcao) async {
     var _imagemSelecionada;
     switch(escolhaOpcao){

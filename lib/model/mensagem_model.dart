@@ -38,7 +38,7 @@ Map<String, dynamic> toMap() {
     this._idUsuarioAtual = idUsuarioAtual;
   }
 
-  String get getMensagem => this._mensagem;
+  String get getMensagemModel => this._mensagem;
 
   set setMensagemModel(String mensagem){
     this._mensagem = mensagem;
