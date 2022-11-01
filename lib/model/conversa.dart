@@ -40,7 +40,7 @@ class Conversa {
             "idRemetente"    : this._idRemetente,
             "idDestinatario" : this._idDestinatario ,
             "nome"           : this._nome,
-            "mensagem"       : this._tipoMensagem,
+            "mensagem"       : this._mensagem,
             "caminhoFoto"    : this._caminhoFoto,
             "tipoMensagem"   : this._tipoMensagem
        };

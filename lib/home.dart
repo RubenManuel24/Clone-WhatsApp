@@ -2,8 +2,8 @@
 
 import 'package:app_clone_whatsapp/login.dart';
 import 'package:app_clone_whatsapp/route_generator.dart';
-import 'package:app_clone_whatsapp/telas/contatos.dart';
-import 'package:app_clone_whatsapp/telas/conversas.dart';
+import 'package:app_clone_whatsapp/telas/abaContatos.dart';
+import 'package:app_clone_whatsapp/telas/abaConversas.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 

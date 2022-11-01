@@ -235,9 +235,7 @@ class _MensagemState extends State<Mensagem> {
         QuerySnapshot querySnapshot = snapshot.requireData;
 
         if(snapshot.hasError){
-          return Expanded(
-            child: Text("Erro ao carregar mensagens!")
-          );
+          return  Text("Erro ao carregar mensagens!");
         }
         else{
           return Expanded(child:
