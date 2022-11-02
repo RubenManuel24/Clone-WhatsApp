@@ -6,6 +6,7 @@ import 'package:app_clone_whatsapp/telas/abaContatos.dart';
 import 'package:app_clone_whatsapp/telas/abaConversas.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'dart:io';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -65,13 +66,14 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin{
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        elevation: Platform.isIOS ? 0 : 4 ,
         bottom: TabBar(
           labelStyle: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold
           ) ,
           controller: _tabController,
-          indicatorColor: Colors.white,
+          indicatorColor: Platform.isIOS ? Colors.grey[400] : Colors.white,
           indicatorWeight: 4,
           tabs: [
             Tab(text: "Convesas",),

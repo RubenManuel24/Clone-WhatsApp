@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:ui';
 import 'package:app_clone_whatsapp/model/conversa.dart';
 import 'package:app_clone_whatsapp/model/usuario.dart';
+import 'package:app_clone_whatsapp/route_generator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -45,6 +46,15 @@ Stream<QuerySnapshot>? _addListnerConversa(){
   void initState() {
     super.initState();
     recuperarIdUserLogado();
+  }
+  
+  /*
+   Este metodo fecha o um determinado evento depois de não precisar mais o mesmo e dessa forma poupando recursos
+*/
+@override
+  void dispose() {
+    super.dispose();
+    _controller.close();
   }
 
   @override
@@ -97,8 +107,22 @@ Stream<QuerySnapshot>? _addListnerConversa(){
                           String nome      = item["nome"];
                           String mensagem  = item["mensagem"];
                           String tipo      = item["tipoMensagem"];
+                          String idUserMarcado      = item["idDestinatario"];
+
+                          Usuario usuario = Usuario();
+                          usuario.setNome      = nome;
+                          usuario.setUrlImagem = urlImagem;
+                          usuario.setIdUsuario = idUserMarcado;
 
                           return ListTile(
+                            
+                            onTap: (){
+                              Navigator.pushNamed(
+                                context, 
+                                RouteGenerator.ROUTE_MENSAGEM, 
+                                arguments: usuario);
+                            },
+
                             contentPadding: EdgeInsets.fromLTRB(16, 8, 16, 8),
                             leading: CircleAvatar(
                               maxRadius: 30,
@@ -123,7 +147,7 @@ Stream<QuerySnapshot>? _addListnerConversa(){
                             ), 
                             ),
                           );
-                        } 
+                         } 
                       );
             }
          }
