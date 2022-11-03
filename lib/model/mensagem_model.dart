@@ -7,6 +7,7 @@ class MensagemModel {
 
   ///Define o tipo da mensagem, que pode ser "texto" ou "imagem"
   var _tipo;
+  var _data;
 
   MensagemModel();
 
@@ -15,9 +16,10 @@ Map<String, dynamic> toMap() {
   Map<String, dynamic> map = {
     
     "idUsuario" : this._idUsuarioAtual,
-    "mensagem" : this._mensagem,
+    "mensagem"  : this._mensagem,
     "urlImagem" : this._urlImagem,
-    "tipo" : this._tipo
+    "tipo"      : this._tipo,
+    "data"      : this._data,
 
   };
 
@@ -54,6 +56,12 @@ Map<String, dynamic> toMap() {
 
   set setTipo(String tipo){
     this._tipo = tipo;
+  }
+
+  String get getData => this._data;
+
+  set setData(String data){
+    this._data = data;
   }
 
 

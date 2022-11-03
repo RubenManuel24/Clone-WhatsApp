@@ -23,7 +23,7 @@ void main() async {
     home:Login(),
     theme: Platform.isIOS ? themeIOS : themePadrao,
     initialRoute: "/",
-    onGenerateRoute:RouteGenerator.generatorRoute ,
+    onGenerateRoute:RouteGenerator.generatorRoute , 
     debugShowCheckedModeBanner: false,
   ));
 }

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:app_clone_whatsapp/model/conversa.dart';
 import 'package:app_clone_whatsapp/model/mensagem_model.dart';
 import 'package:app_clone_whatsapp/model/usuario.dart';
@@ -22,12 +24,17 @@ Usuario contato;
 }
 
 class _MensagemState extends State<Mensagem> {
+  
 
+  
   TextEditingController _controllerMensagem = TextEditingController();
    FirebaseFirestore db =  FirebaseFirestore.instance;
    var _idUserLogado;
    var _idUserDestinatario;
    var _controlProgresImagem = false;
+   final _controller = StreamController<QuerySnapshot>.broadcast();
+   ScrollController _scrollController = ScrollController();
+   
 
   _enviarMensagem(){
     
@@ -38,6 +45,7 @@ class _MensagemState extends State<Mensagem> {
     mensagemModel.setIdUsuarioDestinario = _idUserDestinatario;
     mensagemModel.setMensagemModel = textoMensagem;
     mensagemModel.setUrlImagem = "";
+    mensagemModel.setData = Timestamp.now().toString(); // cria data exata em que a mensagem foi enviada.
     mensagemModel.setTipo = "texto";
      
      //Salvar mensagem para remetente
@@ -106,7 +114,7 @@ class _MensagemState extends State<Mensagem> {
   //código para obter códigos que serão id das iamgem
   var idImagemCodigo = DateTime.now().millisecondsSinceEpoch.toString();
 
-  //código para guardar as nebsagens no Firebae_storage
+  //código para guardar as mensagens no Firebae_storage
      FirebaseStorage storage = FirebaseStorage.instance;
     var pastaRaiz = storage.ref();
     var arquivo = await pastaRaiz
@@ -140,6 +148,7 @@ class _MensagemState extends State<Mensagem> {
     mensagemModel.setIdUsuarioDestinario = _idUserDestinatario;
     mensagemModel.setMensagemModel = "";
     mensagemModel.setUrlImagem = url;
+    mensagemModel.setData = Timestamp.now().toString(); // cria data exata em que a mensagem foi enviada.
     mensagemModel.setTipo = "imagem";
 
     //Salvar mensagem para remetente
@@ -157,8 +166,23 @@ class _MensagemState extends State<Mensagem> {
         _idUserLogado = userLogado?.uid;
         _idUserDestinatario = widget.contato.getIdUsuario;
 
+        _addListnerMensagem();
+
       }
 
+      //Metodo para add um houvinte para a nossa estrutura de mensagem do FireBase
+   Stream<QuerySnapshot>? _addListnerMensagem(){
+   final stream = db.collection("mensagem")
+                .doc(_idUserLogado)
+                .collection(_idUserDestinatario)
+                .orderBy("data", descending: false)
+                .snapshots().listen((dados) { 
+                    _controller.add(dados);
+                    Timer(Duration(seconds: 1 ), (){
+                      _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+                    });
+                  });
+}
        
        @override
        void initState() {
@@ -214,10 +238,7 @@ class _MensagemState extends State<Mensagem> {
   ); 
 
    var stream = StreamBuilder<QuerySnapshot>(
-    stream: db.collection("mensagem")
-          .doc(_idUserLogado)
-          .collection(_idUserDestinatario)
-          .snapshots(),
+    stream: _controller.stream,
     builder: (context, snapshot){
       switch(snapshot.connectionState){
         case ConnectionState.none:
@@ -245,8 +266,9 @@ class _MensagemState extends State<Mensagem> {
         else{
           return Expanded(child:
             ListView.builder(
-      itemCount: querySnapshot.docs.length,
-       itemBuilder: (context, indice){
+              controller: _scrollController,
+              itemCount: querySnapshot.docs.length,
+              itemBuilder: (context, indice){
            
         //Corrento dos na lista
         List<QueryDocumentSnapshot> mensagem = querySnapshot.docs;
