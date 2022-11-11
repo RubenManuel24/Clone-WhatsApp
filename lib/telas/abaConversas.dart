@@ -1,10 +1,8 @@
 import 'dart:async';
 import 'dart:ui';
-import 'package:app_clone_whatsapp/model/conversa.dart';
 import 'package:app_clone_whatsapp/model/usuario.dart';
 import 'package:app_clone_whatsapp/route_generator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 class Conversas extends StatefulWidget {
@@ -49,7 +47,7 @@ Stream<QuerySnapshot>? _addListnerConversa(){
   }
   
   /*
-   Este metodo fecha o um determinado evento depois de não precisar mais o mesmo e dessa forma poupando recursos
+   Este metodo fecha um determinado evento depois de não precisar mais o mesmo, e dessa forma poupando recursos
 */
 @override
   void dispose() {
@@ -103,11 +101,11 @@ Stream<QuerySnapshot>? _addListnerConversa(){
                           List<DocumentSnapshot> conversa = querySnapshot.docs.toList();
                           DocumentSnapshot item = conversa[index];
 
-                          String urlImagem = item["caminhoFoto"];
-                          String nome      = item["nome"];
-                          String mensagem  = item["mensagem"];
-                          String tipo      = item["tipoMensagem"];
-                          String idUserMarcado      = item["idDestinatario"];
+                          String urlImagem     = item["caminhoFoto"];
+                          String nome          = item["nome"];
+                          String mensagem      = item["mensagem"];
+                          String tipo          = item["tipoMensagem"];
+                          String idUserMarcado = item["idDestinatario"];
 
                           Usuario usuario = Usuario();
                           usuario.setNome      = nome;
@@ -122,7 +120,7 @@ Stream<QuerySnapshot>? _addListnerConversa(){
                                 RouteGenerator.ROUTE_MENSAGEM, 
                                 arguments: usuario);
                             },
-
+                            
                             contentPadding: EdgeInsets.fromLTRB(16, 8, 16, 8),
                             leading: CircleAvatar(
                               maxRadius: 30,

@@ -54,7 +54,7 @@ class _LoginState extends State<Login> {
           password: usuario.getSenha)
           .then((firebaseUser){
               
-          return Navigator.pushReplacementNamed(context, RouteGenerator.ROUTE_HOME);
+           return Navigator.pushReplacementNamed(context, RouteGenerator.ROUTE_HOME);
 
           })
           .catchError((erro){
@@ -160,7 +160,7 @@ class _LoginState extends State<Login> {
                    Center(
                     child: GestureDetector(
                       onTap: (){
-                       
+              
                        Navigator.pushNamed(context, RouteGenerator.ROUTE_CADASTRO);
                        
                       },

@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:app_clone_whatsapp/model/conversa.dart';
 import 'package:app_clone_whatsapp/model/mensagem_model.dart';
 import 'package:app_clone_whatsapp/model/usuario.dart';
@@ -11,21 +10,17 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:flutter/material.dart';
 
-
 class Mensagem extends StatefulWidget {
 
 Usuario contato;
 
   Mensagem(this.contato);
 
-  
   @override
   State<Mensagem> createState() => _MensagemState();
 }
 
 class _MensagemState extends State<Mensagem> {
-  
-
   
   TextEditingController _controllerMensagem = TextEditingController();
    FirebaseFirestore db =  FirebaseFirestore.instance;
@@ -143,7 +138,7 @@ class _MensagemState extends State<Mensagem> {
   //Pegado a url da imagem
   String url = await (await task).ref.getDownloadURL();
 
-   MensagemModel mensagemModel = MensagemModel();
+    MensagemModel mensagemModel = MensagemModel();
     mensagemModel.setIdUsuarioAtual = _idUserLogado;
     mensagemModel.setIdUsuarioDestinario = _idUserDestinatario;
     mensagemModel.setMensagemModel = "";
@@ -182,7 +177,7 @@ class _MensagemState extends State<Mensagem> {
                       _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
                     });
                   });
-}
+ }
        
        @override
        void initState() {
